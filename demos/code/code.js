@@ -320,37 +320,11 @@ Code.renderContent = function() {
     //   content.innerHTML = code;
     // }
 
+   
     // 尝试显示xml转义的RobotFramework Testcase---txt格式
     var xmlDom = Blockly.Xml.workspaceToDom(Code.workspace);
-    var testcase_list = [];
-    var text;
-    // 开始解析，遍历子节点，只有type="procedures_callnoreturn"的block才是正确的解析对象
-    var blocks = xmlDom.getElementsByTagName("block");
-    // console.log(blocks.length);
-    for (var i = 0; i < blocks.length; i++) {
-      if (blocks[i].getAttribute("type") == "procedures_callnoreturn") {
-        var muta_name = blocks[i].getElementsByTagName("mutation")[0].getAttribute("name");
-        testcase_list.push(muta_name);      
-        var child_nodes = blocks[i].childNodes;  
-        for (var j = 0; j < child_nodes.length; j++) {
-          // console.log(child_nodes[j].nodeName == "VALUE");
-          if (child_nodes[j].nodeName == "VALUE") {
-            // console.log(child_nodes[j].getElementsByTagName("field")[0].childNodes[0].nodeValue);
-            text = child_nodes[j].getElementsByTagName("field")[0].childNodes[0].nodeValue;
-            testcase_list.push(text);
-          };
-          
-        };        
-        testcase_list.push("\n");
-      };
-    };
-
-    // 格式化字符串，满足RobotFramework执行格式要求
-    // for (var i = 0; i < testcase_list.length; i++) {
-    //   testcase_list[i]
-    // };
-   
-    content.textContent = testcase_list.toString();
+    //console.log(xmlDom,xmlDom.childNodes)
+    content.textContent = xmlToText(xmlDom);
   }
 };
 
@@ -534,3 +508,54 @@ document.write('<script src="msg/' + Code.LANG + '.js"></script>\n');
 document.write('<script src="../../msg/js/' + Code.LANG + '.js"></script>\n');
 
 window.addEventListener('load', Code.init);
+
+/*
+@method xmlToText
+@params 
+        ---[dom]  XMLDocuemnt Object
+*/
+var xmask={
+    'setting_tags':'[Tags]',
+    'setting_documentation':'[Documentation]',
+    'setting_setup':'[Setup]',
+    'setting_teardown':'[Teardown]'
+  };
+function xmlToText(dom){
+  var tabStr="      ";
+  var rtStr="",tmpT,tmpItem;//tmpItem  临时变量值，   tmpT block的type值
+  var hasBlock=0;
+  if((tmpT=dom.getAttribute("type")) && xmask[tmpT]){
+    rtStr+=tabStr+(xmask[tmpT]);
+  }
+  //procedures_defnoreturn 
+  if("procedures_defnoreturn"==tmpT){
+    return "";
+  }
+  var childs=dom.childNodes,next=null;
+  for(var i=0;i<childs.length;i++){
+      switch(childs[i].nodeName.toLowerCase()){
+        case "block":
+          rtStr+=hasBlock?"\n":""+xmlToText(childs[i]);
+          break;
+        case "field":
+          rtStr+=tabStr+(childs[i].nodeValue || childs[i].innerHTML);
+          break;
+        case "mutation":
+          rtStr+=(tmpItem=childs[i].getAttribute("name") || childs[i].getAttribute("NAME") || "")?(tabStr+tmpItem):"";
+          break;
+        case "value":
+          rtStr+=(tmpItem=xmlToText(childs[i].getElementsByTagName("block")[0] || childs[i].getElementsByTagName("BLOCK")[0]))?(tabStr+tmpItem):"";
+          break;
+        case "next":
+          next=childs[i];
+          break;
+        default:
+          break;
+      }
+  }
+  rtStr=rtStr.trim();
+  if(next){
+      rtStr+="\n"+xmlToText(next);
+  }
+  return rtStr;
+}
