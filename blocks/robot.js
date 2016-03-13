@@ -71,7 +71,7 @@ Blockly.Blocks['case_settings'] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     // this.setOutput(true, 'Array');
-    this.setMutator(new Blockly.Mutator(['setting_item', 'setting_casename', 'setting_tags', 'setting_setup']));
+    this.setMutator(new Blockly.Mutator(['setting_item', 'setting_casename', 'setting_tags', 'setting_setup','setting_keyword']));
     this.setTooltip("用例设置");
 
     var thisBlock = this;
@@ -229,25 +229,6 @@ Blockly.Blocks['setting_documentation'] = {
     this.setHelpUrl('https://www.youtube.com/watch?v=s2_xaEvcVI0#t=88');
   }
 };
-
-// Blockly.Blocks['setting_setup'] = {
-//   /**
-//    * Mutator bolck for testcase setup.
-//    * @this Blockly.Block
-//    */
-//   init: function() {
-//     this.setColour(setupColor);
-//     this.appendValueInput("[Setup]")
-//         .setCheck("String")
-//         .setAlign(Blockly.ALIGN_CENTRE)
-//         .appendField("[Setup]");
-//     this.setInputsInline(true);
-//     this.setPreviousStatement(true, null);
-//     this.setNextStatement(true, null);
-//     this.setTooltip(Blockly.Msg.LISTS_CREATE_WITH_ITEM_TOOLTIP);
-//     this.contextMenu = false;
-//   }
-// };
 
 
 Blockly.Blocks['setting_teardown'] = {
@@ -525,3 +506,4 @@ Blockly.Blocks['setting_tags'] = {
     }
   }
 };
+
